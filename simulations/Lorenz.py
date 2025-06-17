@@ -54,7 +54,7 @@ class Lorenz():
         data = torch.cat((data.unsqueeze(-1),v_data.unsqueeze(-1)),dim=-1)
         data = self.smoothe(data,n_smoothe)[::n_smoothe]
         data = data/data.std(dim=(0,1,2),keepdim=True)
-        torch.save(data,'lorenz_data.pt')
+        # torch.save(data,'lorenz_data.pt')
         return data
 
     def plot(self,data,batch_num=0):
@@ -81,6 +81,3 @@ class Lorenz():
         for i in range(n):
             temp = temp + data[i:-n+i]
         return temp/n
-
-
-

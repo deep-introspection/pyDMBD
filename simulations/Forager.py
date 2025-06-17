@@ -147,9 +147,9 @@ class Forager():
         return data, food_memory
 
 
-sim = Forager()
-forager_positions, food_positions, food_memory = sim.simulate()
-sim.plot(forager_positions,food_positions)
+# sim = Forager()
+# forager_positions, food_positions, food_memory = sim.simulate()
+# sim.plot(forager_positions,food_positions)
 
 # batch_num = 100
 # data = sim.simulate_batches(batch_num)

@@ -6,6 +6,8 @@ from .BlockFactorAnalysis import *
 from .dHMM import *
 from .dMixture import *
 from .dMixtureofLinearTransforms import *
+from .DynamicMarkovBlanketDiscovery import *
+from .DeepDMBD import *
 from .GaussianMixtureModel import *
 from .HMM import *
 from .IsotropicGaussianMixtureModel import *

@@ -137,7 +137,6 @@ class NewtonsCradle():
         return torch.cat((X,Y),-1), theta
 
 
-
 # model = NewtonsCradle(n_balls=5,ball_size=0.2,Tmax=1000,batch_size=1,g=1,leak=0.02/2,dt=0.05) 
 # data = model.generate_data('1 ball object')[0]
 
@@ -152,6 +151,3 @@ class NewtonsCradle():
 # plt.plot(data[:,0,3,0])
 # plt.plot(data[:,0,4,0])
 # plt.show()
-
-
-

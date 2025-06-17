@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyDMBD"
+version = "0.1"
+description = "Dynamic Markov Blanket Discovery for Python"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+dependencies = [
+    "torch",
+    "numpy",
+    "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+include = ["models*", "simulations*"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=6.0",
+    "pytest-timeout",
+    "pytest-xdist",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = [
+    "tests",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "requires_data: marks tests that require external data files",
+    "unit: marks tests as unit tests",
+    "parametrized: marks parametrized tests",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+# Configure test discovery
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Set up logging
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# Add timeout for slow tests
+timeout = 300

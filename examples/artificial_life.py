@@ -1,0 +1,134 @@
+
+"""
+Artificial Life Example for Dynamic Markov Blanket Discovery.
+
+This script demonstrates the use of DMBD on artificial life simulation data,
+analyzing emergent behaviors and object interactions in dynamic systems.
+"""
+
+import os
+import sys
+import time
+
+import torch
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.animation import FuncAnimation, FFMpegWriter
+from matplotlib import cm
+
+from models.DynamicMarkovBlanketDiscovery import DMBD, animate_results
+
+start_time = time.time()
+
+print('Test on Artificial Life Data')
+print('Loading data....')
+data = np.load('data/rotor.npy')
+data = torch.tensor(data, dtype=torch.float32, requires_grad=False)
+data = data[::3]
+print('....Done.')
+
+T = 100
+data = data[::9]
+v_data = torch.diff(data, dim=0)
+v_data = v_data / v_data.std()
+data = data[1:]
+data = data / data.std()
+
+data = torch.cat((data, v_data), dim=-1)
+del v_data
+T = data.shape[0]
+T = T // 2
+data = data[:T]
+data = data.unsqueeze(1).clone().detach()
+
+print('Initializing X + V model....')
+model = DMBD(
+    obs_shape=data.shape[-2:],
+    role_dims=(0, 1, 0),
+    hidden_dims=(12, 4, 0),
+    regression_dim=0,
+    control_dim=0,
+    number_of_objects=11
+)
+
+print('Updating model X+V....')
+model.update(data, None, None, iters=40, latent_iters=1, lr=0.5, verbose=True)
+
+print('Making Movie')
+f = r"./rotator_movie.mp4"
+ar = animate_results('particular', f).make_movie(model, data, (0,))
+
+# Extract model predictions and roles
+sbz = model.px.mean()
+B = model.obs_model.obs_dist.mean()
+if model.regression_dim == 1:
+    roles = B[..., :-1] @ sbz + B[..., -1:]
+else:
+    roles = B @ sbz
+sbz = sbz.squeeze(-3).squeeze(-1)
+roles = roles.squeeze(-1)[..., 0:2]
+
+# Visualization
+batch_num = 0
+temp1 = data[:, batch_num, :, 0]
+temp2 = data[:, batch_num, :, 1]
+rtemp1 = roles[:, batch_num, :, 0]
+rtemp2 = roles[:, batch_num, :, 1]
+
+# Plot environment and roles
+idx = (model.assignment()[:, batch_num, :] == 0)
+plt.scatter(temp1[idx], temp2[idx], color='y', alpha=0.5)
+ev_dim = model.role_dims[0]
+ob_dim = np.sum(model.role_dims[1:])
+
+for i in range(ev_dim):
+    idx = (model.obs_model.assignment()[:, batch_num, :] == i)
+    plt.scatter(rtemp1[:, i], rtemp2[:, i])
+plt.title('Environment + Roles')
+plt.show()
+
+# Color mapping for different roles
+ctemp = model.role_dims[1] * ('b',) + model.role_dims[2] * ('r',)
+
+# Plot individual objects
+for j in range(model.number_of_objects):
+    idx = (model.assignment()[:, batch_num, :] == 0)
+    plt.scatter(temp1[idx], temp2[idx], color='y', alpha=0.2)
+    for i in range(1 + 2 * j, 1 + 2 * (j + 1)):
+        idx = (model.assignment()[:, batch_num, :] == i)
+        plt.scatter(temp1[idx], temp2[idx])
+    plt.title(f'Object {j + 1} (yellow is environment)')
+    plt.show()
+    
+    # Plot object roles
+    idx = (model.assignment()[:, batch_num, :] == 0)
+    plt.scatter(temp1[idx], temp2[idx], color='y', alpha=0.2)
+    k = 0
+    for i in range(ev_dim + ob_dim * j, ev_dim + ob_dim * (j + 1)):
+        idx = (model.obs_model.assignment()[:, batch_num, :] == i)
+        plt.scatter(rtemp1[:, i], rtemp2[:, i], color=ctemp[k])
+        k = k + 1
+    plt.title(f'Object {j + 1} roles')
+    plt.show()
+
+len_data = data
+len_model = model
+
+run_time = time.time() - start_time
+print(f'Total Run Time: {run_time:.2f} seconds')
+
+# # Optional: make frame by frame movie using particular designations
+# assignments = model.particular_assignment() / model.number_of_objects
+# confidence = model.assignment_pr().max(-1)[0]
+#
+# fig = plt.figure(figsize=(7, 7))
+# ax = plt.axes(xlim=(-2.5, 2.5), ylim=(-2.5, 2.5))
+# scatter = ax.scatter([], [], cmap=cm.rainbow, c=[], vmin=0.0, vmax=1.0)
+#
+# T = data.shape[0]
+# fn = 0
+# scatter.set_offsets(data[fn % T, fn // T, :, :].numpy())
+# scatter.set_array(assignments[fn % T, fn // T, :].numpy())
+# scatter.set_alpha(confidence[fn % T, fn // T, :].numpy())
+#
+# plt.plot(model.ELBO_save)

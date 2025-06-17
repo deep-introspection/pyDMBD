@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-class FlameSimulator:
+class Flame:
     def __init__(self, num_steps, delta_t, thermal_diffusivity, temperature_threshold, num_sources):
         self.num_steps = num_steps
         self.delta_t = delta_t
@@ -132,34 +132,32 @@ def plot_temperature(temperature, ignition_times,dt):
     sub_ax.set_xticks([])
     sub_ax.set_yticks([])
     sub_ax.plot(1.0/ignition_times[1:].diff())
-#    plt.savefig('C:/Users/brain/OneDrive/Desktop/flame.png')
     plt.show()
 
 
+# # Define simulation parameters
+# num_steps = 20000
+# delta_t = 0.005
+# thermal_diffusivity = 0.5
+# temperature_threshold = 0.4+0.1*torch.rand(1)
+# num_sources = 50
+# num_batches = 80
+# num_x = 1000
 
-# Define simulation parameters
-num_steps = 20000
-delta_t = 0.005
-thermal_diffusivity = 0.5
-temperature_threshold = 0.4+0.1*torch.rand(1)
-num_sources = 50
-num_batches = 80
-num_x = 1000
+# # Create FlameSimulator object
+# temp = torch.zeros((num_batches, num_steps, num_x))
+# fuel = torch.zeros((num_batches, num_steps, num_x))
+# ox = torch.zeros((num_batches, num_steps, num_x))
+# temperature_threshold = torch.zeros((num_batches))
 
-# Create FlameSimulator object
-temp = torch.zeros((num_batches, num_steps, num_x))
-fuel = torch.zeros((num_batches, num_steps, num_x))
-ox = torch.zeros((num_batches, num_steps, num_x))
-temperature_threshold = torch.zeros((num_batches))
-
-# Perform simulation
-for k in range(num_batches):
-    temperature_threshold[k] = 0.4+0.1*torch.rand(1)
-    simulator = FlameSimulator(num_steps, delta_t, thermal_diffusivity, temperature_threshold[k], num_sources)
-    temperature, ignition_times, heat_released = simulator.simulate()
-    temp[k], fuel[k], ox[k], source_locations = simulator.fine_grain(num_x)
-    plot_temperature(temp[k],ignition_times,simulator.delta_t)
-    print(k)
+# # Perform simulation
+# for k in range(num_batches):
+#     temperature_threshold[k] = 0.4+0.1*torch.rand(1)
+#     simulator = Flame(num_steps, delta_t, thermal_diffusivity, temperature_threshold[k], num_sources)
+#     temperature, ignition_times, heat_released = simulator.simulate()
+#     temp[k], fuel[k], ox[k], source_locations = simulator.fine_grain(num_x)
+#     plot_temperature(temp[k],ignition_times,simulator.delta_t)
+#     print(k)
 
 
 
