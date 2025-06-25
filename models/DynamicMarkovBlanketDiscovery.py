@@ -12,7 +12,7 @@ from .dists.utils import matrix_utils
 import time
 
 class DMBD(LinearDynamicalSystems):
-    def __init__(self, obs_shape, role_dims, hidden_dims, control_dim = 0, regression_dim = 0, batch_shape=(),number_of_objects=1, unique_obs = False):
+    def __init__(self, obs_shape, role_dims, hidden_dims, control_dim = 0, regression_dim = 0, batch_shape=(), number_of_objects=1, unique_obs = False):
 
         # obs_shape = (n_obs,obs_dim)
         #       n_obs is the number of observables
@@ -439,7 +439,7 @@ class animate_results():
         self.scatter.set_alpha(fig_confidence[fn%T, fn//T,:].numpy())
         return self.scatter,
         
-    def make_movie(self,model,data, batch_numbers):
+    def make_movie(self, model, data, batch_numbers):
         print('Generating Animation using',self.assignment_type, 'assignments')
 
 
